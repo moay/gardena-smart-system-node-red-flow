@@ -1,0 +1,283 @@
+<script type="text/javascript">
+    RED.nodes.registerType('api-credentials', {
+        category: 'config',
+        credentials: {
+            application: { type: 'text' },
+            username: { type: 'text' },
+            password: { type: 'password' }
+        },
+        label() {
+            return this.credentials ? `Application ${this.credentials.application}` : 'Gardena Application Credentials'
+        },
+        exportable: false,
+    });
+</script>
+
+<script type="text/html" data-template-name="api-credentials">
+    <div class="form-row">
+        <label for="node-config-input-application"><i class="fa fa-hashtag"></i> Application ID</label>
+        <input type="text" id="node-config-input-application">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-username"><i class="fa fa-at"></i> Email address</label>
+        <input type="text" id="node-config-input-username">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-password"><i class="fa fa-key"></i> Password</label>
+        <input type="password" id="node-config-input-password">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('devices_status', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+        	api: { value:'', type: 'api-credentials' },
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return 'Gardena Devices Status';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="devices_status">
+    <div class="form-row">
+        <label for="node-input-api"><i class="fa fa-tag"></i> Api Credentials</label>
+        <input type="text" id="node-input-api">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="devices_status">
+    <p>A node that retrieves status for all devices in one location from Gardena Smart System.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('service_status', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+        	name: {value: null},
+     		service: {value: '', required: true},
+     		servicetype: {value: '', required: true},
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label: function() {
+        	if (this.name && this.servicetype) {
+        		return `${this.name} (${this.servicetype})`
+        	}
+            return 'Gardena Service Status';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="service_status">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Node Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-service"><i class="fa fa-tag"></i> Service ID</label>
+        <input type="text" id="node-input-service">
+    </div>
+    <div class="form-row">
+        <label for="node-input-servicetype"><i class="fa fa-tag"></i> Service Type</label>
+        <select id="node-input-servicetype">
+        	<option value="MOWER">Mower</option>
+        	<option value="VALVE">Valve</option>
+        	<option value="VALVE_SET">Irrigation Control Status</option>
+        	<option value="SENSOR">Sensor</option>
+        	<option value="COMMON">Device Information</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="service_status">
+    <p>A node that filters the status of a service from the data that was retrieved using the Gardena Devices Status node.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('valve_control', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+        	name: { value: null },
+        	api: { value: '', type: 'api-credentials' },
+        	service: { value: '', required: true },
+        	operation: { value: '', required: true },
+        	duration: { value: 1 },
+        	durationtype: { value: 'num' },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label: function() {
+            return this.name || 'Gardena Valve Control';
+        },
+        oneditprepare: function() {
+        	$("#node-input-duration").typedInput({
+			    types:["num", "msg"],
+			    typeField: "#node-input-durationtype"
+			})
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="valve_control">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Node Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-api"><i class="fa fa-tag"></i> Api Credentials</label>
+        <input type="text" id="node-input-api">
+    </div>
+    <div class="form-row">
+        <label for="node-input-service"><i class="fa fa-tag"></i> Service ID</label>
+        <input type="text" id="node-input-service">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tag"></i> Operation</label>
+        <select id="node-input-operation">
+        	<option value="START_SECONDS_TO_OVERRIDE">Water</option>
+        	<option value="STOP_UNTIL_NEXT_TASK">Cancel watering</option>
+        	<option value="PAUSE">Pause Schedule</option>
+        	<option value="UNPAUSE">Continue Schedule</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-duration"><i class="fa fa-tag"></i> Watering Duration (Minutes)</label>
+        <input type="text" id="node-input-duration">
+        <input type="hidden" id="node-input-durationtype">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="valve_control">
+    <p>A node for controlling a Gardena Valve.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('mower_control', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+        	name: { value: null },
+        	api: { value: '', type: 'api-credentials' },
+        	service: { value: '', required: true },
+        	operation: { value: '', required: true },
+        	duration: { value: 1 },
+        	durationtype: { value: 'num' },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label: function() {
+            return this.name || 'Gardena Mower Control';
+        },
+        oneditprepare: function() {
+        	$("#node-input-duration").typedInput({
+			    types:["num", "msg"],
+			    typeField: "#node-input-durationtype"
+			})
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mower_control">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Node Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-api"><i class="fa fa-tag"></i> Api Credentials</label>
+        <input type="text" id="node-input-api">
+    </div>
+    <div class="form-row">
+        <label for="node-input-service"><i class="fa fa-tag"></i> Service ID</label>
+        <input type="text" id="node-input-service">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tag"></i> Operation</label>
+        <select id="node-input-operation">
+        	<option value="START_SECONDS_TO_OVERRIDE">Start mowing</option>
+        	<option value="START_DONT_OVERRIDE">Start mowing by schedule</option>
+        	<option value="PARK_UNTIL_NEXT_TASK">Park until next task</option>
+        	<option value="PARK_UNTIL_FURTHER_NOTICE">Park until further notice</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-duration"><i class="fa fa-tag"></i> Mowing Duration (Minutes)</label>
+        <input type="text" id="node-input-duration">
+        <input type="hidden" id="node-input-durationtype">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="mower_control">
+    <p>A node for controlling a Gardena Mower.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('powersocket_control', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+        	name: { value: null },
+        	api: { value: '', type: 'api-credentials' },
+        	service: { value: '', required: true },
+        	operation: { value: '', required: true },
+        	duration: { value: 1 },
+        	durationtype: { value: 'num' },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label: function() {
+            return this.name || 'Gardena Power Socket Control';
+        },
+        oneditprepare: function() {
+        	$("#node-input-duration").typedInput({
+			    types:["num", "msg"],
+			    typeField: "#node-input-durationtype"
+			})
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="powersocket_control">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Node Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-api"><i class="fa fa-tag"></i> Api Credentials</label>
+        <input type="text" id="node-input-api">
+    </div>
+    <div class="form-row">
+        <label for="node-input-service"><i class="fa fa-tag"></i> Service ID</label>
+        <input type="text" id="node-input-service">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tag"></i> Operation</label>
+        <select id="node-input-operation">
+        	<option value="START_SECONDS_TO_OVERRIDE">Switch on for given duration</option>
+        	<option value="START_OVERRIDE">Switch on</option>
+        	<option value="STOP_UNTIL_NEXT_TASK">Switch off and return to schedule</option>
+        	<option value="PAUSE">Disable schedule for given duration</option>
+        	<option value="UNPAUSE">Continue with schedule</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-duration"><i class="fa fa-tag"></i> Power On Duration (Minutes)</label>
+        <input type="text" id="node-input-duration">
+        <input type="hidden" id="node-input-durationtype">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="powersocket_control">
+    <p>A node for controlling a Gardena Power Socket.</p>
+</script>
