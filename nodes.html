@@ -30,14 +30,14 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('devices_status', {
-        category: 'function',
-        color: '#a6bbcf',
+        category: 'Gardena',
+        color: '#C0DEED',
         defaults: {
         	api: { value:'', type: 'api-credentials' },
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-info-circle",
         label: function() {
             return 'Gardena Devices Status';
         }
@@ -57,8 +57,8 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('service_status', {
-        category: 'function',
-        color: '#a6bbcf',
+        category: 'Gardena',
+        color: '#C0DEED',
         defaults: {
         	name: {value: null},
      		service: {value: '', required: true},
@@ -66,7 +66,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "file.png",
+        icon: "font-awesome/fa-filter",
         label: function() {
         	if (this.name && this.servicetype) {
         		return `${this.name} (${this.servicetype})`
@@ -103,8 +103,8 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('valve_control', {
-        category: 'function',
-        color: '#a6bbcf',
+        category: 'Gardena',
+        color: '#FFAAAA',
         defaults: {
         	name: { value: null },
         	api: { value: '', type: 'api-credentials' },
@@ -115,7 +115,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "file.png",
+        icon: "font-awesome/fa-tint",
         label: function() {
             return this.name || 'Gardena Valve Control';
         },
@@ -163,8 +163,8 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('mower_control', {
-        category: 'function',
-        color: '#a6bbcf',
+        category: 'Gardena',
+        color: '#FFAAAA',
         defaults: {
         	name: { value: null },
         	api: { value: '', type: 'api-credentials' },
@@ -175,7 +175,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "file.png",
+        icon: "mower.svg",
         label: function() {
             return this.name || 'Gardena Mower Control';
         },
@@ -223,8 +223,8 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('powersocket_control', {
-        category: 'function',
-        color: '#a6bbcf',
+        category: 'Gardena',
+        color: '#FFAAAA',
         defaults: {
         	name: { value: null },
         	api: { value: '', type: 'api-credentials' },
@@ -235,7 +235,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "file.png",
+        icon: "font-awesome/fa-power-off",
         label: function() {
             return this.name || 'Gardena Power Socket Control';
         },
