@@ -6,8 +6,11 @@
             username: { type: 'text' },
             password: { type: 'password' }
         },
+        defaults: {
+        	name: { value:'Gardena Access' },
+        },
         label() {
-            return this.credentials ? `Application ${this.credentials.application}` : 'Gardena Application Credentials'
+            return this.name || 'Gardena Application Credentials'
         },
         exportable: false,
     });
@@ -15,11 +18,15 @@
 
 <script type="text/html" data-template-name="api-credentials">
     <div class="form-row">
-        <label for="node-config-input-application"><i class="fa fa-hashtag"></i> Application ID</label>
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-application"><i class="fa fa-hashtag"></i> Application</label>
         <input type="text" id="node-config-input-application">
     </div>
     <div class="form-row">
-        <label for="node-config-input-username"><i class="fa fa-at"></i> Email address</label>
+        <label for="node-config-input-username"><i class="fa fa-at"></i> Email</label>
         <input type="text" id="node-config-input-username">
     </div>
     <div class="form-row">
@@ -144,7 +151,7 @@
     <div class="form-row">
         <label for="node-input-operation"><i class="fa fa-tag"></i> Operation</label>
         <select id="node-input-operation">
-        	<option value="START_SECONDS_TO_OVERRIDE">Water</option>
+        	<option value="START_SECONDS_TO_OVERRIDE">Start watering for given duration</option>
         	<option value="STOP_UNTIL_NEXT_TASK">Cancel watering</option>
         	<option value="PAUSE">Pause Schedule</option>
         	<option value="UNPAUSE">Continue Schedule</option>
@@ -204,7 +211,7 @@
     <div class="form-row">
         <label for="node-input-operation"><i class="fa fa-tag"></i> Operation</label>
         <select id="node-input-operation">
-        	<option value="START_SECONDS_TO_OVERRIDE">Start mowing</option>
+        	<option value="START_SECONDS_TO_OVERRIDE">Start mowing for given duration</option>
         	<option value="START_DONT_OVERRIDE">Start mowing by schedule</option>
         	<option value="PARK_UNTIL_NEXT_TASK">Park until next task</option>
         	<option value="PARK_UNTIL_FURTHER_NOTICE">Park until further notice</option>
