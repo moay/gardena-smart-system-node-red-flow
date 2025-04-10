@@ -6,6 +6,7 @@ class AuthenticationClient {
 		this.axios = axios;
 		this.URLSearchParams = URLSearchParams;
 		this.flowContext = flowContext;
+		this.authenticationClient = null;
 
 		this.validateStoredData();
 	}
@@ -28,7 +29,7 @@ class AuthenticationClient {
 					try {
 						token = await authenticationClient.authenticateWithoutToken();
 					} catch (e) {
-						reject('Authentication error');
+						reject(e);
 					}
 					resolve(token);
 				} else {
@@ -55,10 +56,9 @@ class AuthenticationClient {
 		const baseUrl = 'https://api.authentication.husqvarnagroup.dev/v1/oauth2/token';
 		const params = new this.URLSearchParams();
 		
-		params.set('grant_type', 'password');
+		params.set('grant_type', 'client_credentials');
 		params.set('client_id', this.credentials.application);
-		params.set('username', this.credentials.username);
-		params.set('password', this.credentials.password);
+		params.set('client_secret', this.credentials.password);
 
 		const response = await this.axios.post(baseUrl, params);
 
@@ -264,7 +264,7 @@ class GardenaApiClient {
 			token = await this.authenticationClient.getAuthenticationToken();
 		} catch (e) {
 			// Retry
-			authenticationClient.invalidateStoredToken();
+			this.authenticationClient.invalidateStoredToken();
 			token = await this.authenticationClient.getAuthenticationToken();
 		}
 

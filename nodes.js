@@ -10,7 +10,6 @@ module.exports = function(RED) {
     RED.nodes.registerType('api-credentials', ApiCredentialsNode, {
     	credentials: {
             application: { type: 'text' },
-            username: { type: 'text' },
             password: { type: 'password' }
         }
     });

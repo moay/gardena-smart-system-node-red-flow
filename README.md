@@ -21,7 +21,7 @@ that can be controlled via the Gardena/Husqvarna API.
 
 ### Setup
 
-When using one of the actions on the node, you'll need credentials. These should be easy to setup, pass in the app client ID, username and password, the rest will be handled.
+When using one of the actions on the node, you'll need credentials. These should be easy to setup, pass in the app client ID and secret.
 
 ### Service IDs
 
