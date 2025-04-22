@@ -29,7 +29,8 @@ class AuthenticationClient {
 					try {
 						token = await authenticationClient.authenticateWithoutToken();
 					} catch (e) {
-						reject(e);
+						console.debug(e.status)
+						reject();
 					}
 					resolve(token);
 				} else {
@@ -37,14 +38,13 @@ class AuthenticationClient {
 						if (error) {
 							reject('Storage error.');
 						}
-						if (!expiresAt) {
+						if (!expiresAt || expiresAt <= Date.now()/1000) {
 							authenticationClient.invalidateStoredToken();
 							token = await authenticationClient.authenticateWithoutToken();
-						} else if (expiresAt > Date.now()/1000) {
-							token = accessToken;
 						} else {
-							token = await authenticationClient.refreshAccessToken();
+							token = accessToken;	
 						}
+						
 						resolve(token);	
 					});
 				}
@@ -53,6 +53,7 @@ class AuthenticationClient {
 	}
 
 	async authenticateWithoutToken() {
+		console.debug('Obtaining access token')
 		const baseUrl = 'https://api.authentication.husqvarnagroup.dev/v1/oauth2/token';
 		const params = new this.URLSearchParams();
 		
@@ -60,28 +61,13 @@ class AuthenticationClient {
 		params.set('client_id', this.credentials.application);
 		params.set('client_secret', this.credentials.password);
 
-		const response = await this.axios.post(baseUrl, params);
-
-		if (response.status !== 200) {
-			throw new Error('Could not authenticate to Gardena API. Probably your credentials are wrong.');
+		let response
+		try {
+			response = await this.axios.post(baseUrl, params);
+		} catch (e) {
+			console.debug(e.response)
 		}
-
-		this.storeAccessToken(response.data);
-
-		return response.data.access_token;
-	}
-
-	async refreshAccessToken(refreshToken) {
-		const baseUrl = 'https://api.authentication.husqvarnagroup.dev/v1/oauth2/token';
-		const params = new this.URLSearchParams();
-		
-		params.set('grant_type', 'refresh_token');
-		params.set('client_id', this.credentials.application);
-		params.set('refresh_token', refreshToken);
-
-		const response = await this.axios.post(baseUrl, params);
-
-		if (response.status !== 200) {
+		if (!response || response.status !== 200) {
 			throw new Error('Could not authenticate to Gardena API. Probably your credentials are wrong.');
 		}
 
@@ -94,13 +80,13 @@ class AuthenticationClient {
 		this.flowContext.set("gardena_access_token", tokenResponse.access_token);
 		const now = Date.now()/1000;
 		this.flowContext.set("gardena_access_token_expires_at", now + tokenResponse.expires_in - 10);
-		this.flowContext.set("gardena_refresh_token", tokenResponse.refresh_token);
 		this.flowContext.set("gardena_storage_hash", this.getStorageHash());
 	}
 
 	invalidateStoredToken() {
 		this.flowContext.set("gardena_access_token", undefined);
-		this.flowContext.set("gardena_refresh_token", undefined);
+		this.flowContext.set("gardena_access_token_expires_at", undefined);
+		this.flowContext.set("gardena_storage_hash", 'invalidated');
 	}
 
 	validateStoredData() {
@@ -235,13 +221,12 @@ class GardenaApiClient {
 
 	async sendAuthenticatedRequestAsync(method, targetUrl, data, allowRetry = true) {
 		const token = await this.prepareAuthenticationTokenAsync();
-		const url = `https://api.smart.gardena.dev/v1/${targetUrl}`;
+		const url = `https://api.smart.gardena.dev/v2/${targetUrl}`;
 		const requestConfig = {
 			url,
 			method,
 			headers: {
 				'Authorization': `Bearer ${token}`,
-				'Authorization-Provider': 'husqvarna',
 				'X-Api-Key': this.credentials.application,
 				'Content-Type': 'application/vnd.api+json',
 			}
@@ -251,13 +236,23 @@ class GardenaApiClient {
 			requestConfig.data = data;
 		}
 
-		const response = await this.axios.request(requestConfig);
-		if (response.status > 399 && allowRetry) {
-			await this.authenticationClient.refreshAccessToken();
-			response = await this.sendAuthenticatedRequestAsync(method, targetUrl, data, false)
+		console.log('REQUEST DATA')
+		console.debug(requestConfig)
+
+		let response = null
+		try {
+			response = await this.axios.request(requestConfig);
+		} catch(e) {
+			if (e && e.response && (
+				e.response.status === 401 || e.response.status === 404
+			)) {
+				this.authenticationClient.invalidateStoredToken()
+				response = await this.sendAuthenticatedRequestAsync(method, targetUrl, data, false)
+
+			}
 		}
 
-		return response;
+		return new Promise((r) => r(response));
 	}
 
 	async prepareAuthenticationTokenAsync() {

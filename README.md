@@ -34,3 +34,4 @@ Sadly, the services aren't really labeled, so you'll need to try out which is wh
 
 * Locations will be cached in the context. If you have location changes, just restart Node-RED to clear the flow context. If you don't know what a location is: Basically you can handle multiple houses/locations in one gardena account. If these change, try restarting Node RED and you run into issues.
 * I wasn't able to test on many things, so basically the old saying "it works on my machine" applies. If something does not work, let me know.
+* Gardena has rate limits, see [here](https://developer.husqvarnagroup.cloud/apis/gardena-smart-system-api?tab=readme#rate-limits) - keep those in mind! Do NOT setup too frequent calls to the API. For ongoing status requests, try to stick to something below one request every 30 minutes.
