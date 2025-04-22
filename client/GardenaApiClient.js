@@ -233,7 +233,7 @@ class GardenaApiClient {
 		});
 	}
 
-	async sendAuthenticatedRequestAsync(method, targetUrl, data) {
+	async sendAuthenticatedRequestAsync(method, targetUrl, data, allowRetry = true) {
 		const token = await this.prepareAuthenticationTokenAsync();
 		const url = `https://api.smart.gardena.dev/v1/${targetUrl}`;
 		const requestConfig = {
@@ -251,7 +251,13 @@ class GardenaApiClient {
 			requestConfig.data = data;
 		}
 
-		return this.axios.request(requestConfig);
+		const response = await this.axios.request(requestConfig);
+		if (response.status > 399 && allowRetry) {
+			await this.authenticationClient.refreshAccessToken();
+			response = await this.sendAuthenticatedRequestAsync(method, targetUrl, data, false)
+		}
+
+		return response;
 	}
 
 	async prepareAuthenticationTokenAsync() {
