@@ -243,7 +243,7 @@ class GardenaApiClient {
 		try {
 			response = await this.axios.request(requestConfig);
 		} catch(e) {
-			if (e && e.response && (
+			if (alloweRetry && e && e.response && (
 				e.response.status === 401 || e.response.status === 404
 			)) {
 				this.authenticationClient.invalidateStoredToken()

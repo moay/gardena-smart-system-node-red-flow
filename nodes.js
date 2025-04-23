@@ -33,7 +33,8 @@ module.exports = function(RED) {
 	            	node.send(msg);
             	})
                 .catch(function(response) {
-                    node.error(response);
+                    node.error('Unknown error when getting devices')
+                    console.error(response);
                 });
         });
     }
@@ -99,7 +100,8 @@ module.exports = function(RED) {
                     node.send(msg);
                 })
                 .catch(function(response) {
-                    node.error(response);
+                    console.error(response);
+                    node.error('Unknown error when controlling valve')
                     node.status({
                         fill: 'orange',
                         shape: 'ring',
@@ -130,7 +132,8 @@ module.exports = function(RED) {
                     node.send(msg);
                 })
                 .catch(function(response) {
-                    node.error(response);
+                    console.error(response);
+                    node.error('Unknown error when controlling mower')
                     node.status({
                         fill: 'orange',
                         shape: 'ring',
@@ -161,7 +164,8 @@ module.exports = function(RED) {
                     node.send(msg);
                 })
                 .catch(function(response) {
-                    node.error(response);
+                    console.error(response);
+                    node.error('Unknown error when controlling power socket')
                     node.status({
                         fill: 'orange',
                         shape: 'ring',
