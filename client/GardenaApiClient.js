@@ -243,12 +243,11 @@ class GardenaApiClient {
 		try {
 			response = await this.axios.request(requestConfig);
 		} catch(e) {
-			if (alloweRetry && e && e.response && (
+			if (allowRetry && e && e.response && (
 				e.response.status === 401 || e.response.status === 404
 			)) {
 				this.authenticationClient.invalidateStoredToken()
 				response = await this.sendAuthenticatedRequestAsync(method, targetUrl, data, false)
-
 			}
 		}
 
